@@ -28,6 +28,7 @@ angular.module('ng-token-auth', ['ipCookie']).provider('$auth', function() {
       validateOnPageLoad: true,
       forceHardRedirect: false,
       storage: 'cookies',
+      forceValidateToken: false,
       tokenFormat: {
         "access-token": "{{ token }}",
         "token-type": "Bearer",
@@ -409,7 +410,11 @@ angular.module('ng-token-auth', ['ipCookie']).provider('$auth', function() {
                   } else if (this.retrieveData('currentConfigName')) {
                     configName = this.retrieveData('currentConfigName');
                   }
-                  if (!isEmpty(this.retrieveData('auth_headers'))) {
+                  if (this.getConfig().forceValidateToken) {
+                    this.validateToken({
+                      config: configName
+                    });
+                  } else if (!isEmpty(this.retrieveData('auth_headers'))) {
                     if (this.tokenHasExpired()) {
                       $rootScope.$broadcast('auth:session-expired');
                       this.rejectDfd({

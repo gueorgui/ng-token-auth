@@ -21,6 +21,7 @@ angular.module('ng-token-auth', ['ipCookie'])
         validateOnPageLoad:      true
         forceHardRedirect:       false
         storage:                 'cookies'
+        forceValidateToken:      false
 
         tokenFormat:
           "access-token": "{{ token }}"
@@ -460,7 +461,12 @@ angular.module('ng-token-auth', ['ipCookie'])
                 else if @retrieveData('currentConfigName')
                   configName = @retrieveData('currentConfigName')
 
-                unless isEmpty(@retrieveData('auth_headers'))
+                # cookie might not be set, but forcing token validation has
+                # been enabled
+                if @getConfig().forceValidateToken
+                  @validateToken({config: configName})
+
+                else if !isEmpty(@retrieveData('auth_headers'))
                   # if token has expired, do not verify token with API
                   if @tokenHasExpired()
                     $rootScope.$broadcast('auth:session-expired')
